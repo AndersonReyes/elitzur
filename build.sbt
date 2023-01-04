@@ -31,6 +31,8 @@ val ratatoolVersion = "0.3.25"
 val scalaCheckVersion = "1.14.3"
 val enumeratumVersion = "1.7.0"
 val scalaCollectionsCompatVersion = "2.6.0"
+val catsVersion = "2.7.0"
+val shapelessVersion = "2.3.9"
 
 
 val disableWarts = Set(
@@ -164,7 +166,7 @@ lazy val root: Project = Project(
   file(".")
 ).settings(commonSettings ++ noPublishSettings).aggregate(
   elitzurCore, elitzurAvro, benchmarking, elitzurScio,
-  elitzurExamples, elitzurSchemas
+  elitzurExamples, elitzurSchemas, elitzurCatsValidated
 )
 
 lazy val elitzurCore: Project = Project(
@@ -249,6 +251,18 @@ lazy val elitzurSchemas: Project = Project(
   AvroConfig / version := avroVersion,
   name := "elitzur-schemas"
 )
+
+lazy val elitzurCatsValidated: Project = Project(
+  "elitzur-cats-validated",
+  file("elitzur-cats-validated")
+).settings(
+  commonSettings ++ releaseSettings,
+    name := "elitzur-cats-validated",
+    libraryDependencies ++= Seq(
+      "org.typelevel" %% "cats-core" % catsVersion,
+      "com.chuusai" %% "shapeless" % shapelessVersion,
+    )
+  ).dependsOn(elitzurCore % "test->test;compile->compile")
 
 addCommandAlias(
   "verify",
