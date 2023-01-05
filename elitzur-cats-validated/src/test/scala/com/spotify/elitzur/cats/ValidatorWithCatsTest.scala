@@ -1,6 +1,6 @@
 package com.spotify.elitzur.cats
 
-import com.spotify.elitzur.cats.FieldValidatorWithCats.Implicits._
+import com.spotify.elitzur.cats.Common._
 import com.spotify.elitzur.validators.{Unvalidated, Valid}
 import com.spotify.elitzur.{AgeTesting, CountryCodeTesting, MetricsReporter}
 import org.scalatest.flatspec.AnyFlatSpec
@@ -33,11 +33,13 @@ class ValidatorWithCatsTest extends AnyFlatSpec with should.Matchers {
   case class DataTest(age: Long, nested: NestedTest, nativeLong: Long = 7L)
 
   object DataTestValidator extends FunctionalValidator[DataTest] {
-    override def apply(v1: DataTest): List[ValidatorWithCats.ValidationResult] =
+    override def shouldValidate: Boolean = true
+    override def validationType: String = "DataTest"
+    override def apply(v1: DataTest): List[ValidationResult] =
       List(
         AgeTesting(v1.age).validateWithCats("age"),
         CountryCodeTesting(v1.nested.country).validateWithCats("nested.country")
-      )
+      ).flatten
   }
 
   it should "validate Correct results" in {
@@ -45,9 +47,9 @@ class ValidatorWithCatsTest extends AnyFlatSpec with should.Matchers {
     val validator = new ValidatorWithCats(DataTestValidator)
     val d = DataTest(5, NestedTest("CA"))
 
-    validator.validateRecord(
-      Unvalidated(ValidatorWithCats.RecordWrapper(d, None))
-    ) shouldBe Valid(ValidatorWithCats.RecordWrapper(d, None))
+    validator.validateRecord(Unvalidated(RecordWrapper(d, None))) shouldBe Valid(
+      RecordWrapper(d, None)
+    )
 
     reporter.metrics shouldBe scala.collection.mutable
       .Map(
@@ -63,7 +65,7 @@ class ValidatorWithCatsTest extends AnyFlatSpec with should.Matchers {
 
     val actual =
       validator
-        .validateRecord(Unvalidated(ValidatorWithCats.RecordWrapper(d, None)))
+        .validateRecord(Unvalidated(RecordWrapper(d, None)))
 
     actual.isValid shouldBe false
     actual.isInvalid shouldBe true

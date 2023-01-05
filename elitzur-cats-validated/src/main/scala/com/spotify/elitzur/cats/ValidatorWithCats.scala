@@ -1,7 +1,7 @@
 package com.spotify.elitzur.cats
 
 import com.spotify.elitzur.MetricsReporter
-import com.spotify.elitzur.cats.ValidatorWithCats._
+import com.spotify.elitzur.cats.Common._
 import com.spotify.elitzur.validators.{
   Invalid,
   PostValidation,
@@ -64,11 +64,10 @@ class ValidatorWithCats[A](fn: A => List[ValidationResult])(
 }
 
 object ValidatorWithCats {
-  case class Field[T](name: String, value: T)
-  type ValidationResult = Either[Field[_], Field[_]]
 
-  /**
-    * Wraps data with invalid fields context if invalid
-    */
-  case class RecordWrapper[T](data: T, invalid: Option[List[Field[_]]])
+//  def apply[A](
+//    implicit metricsReporter: MetricsReporter
+//  ): ValidatorWithCats[A] =
+//    new ValidatorWithCats[A](FunctionalValidator[A])
+
 }
